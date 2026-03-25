@@ -2,3 +2,10 @@
 **/__pycache__/
 .DS_Store
 *.tmp
+
+# Python virtual environments
+venv/
+env/
+neutron-env/
+*/venv/
+*/env/

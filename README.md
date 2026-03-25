@@ -1,22 +1,65 @@
 # Neutron-Gamma Coincidence Analysis
 
-Two-channel neutron-gamma coincidence analysis using AmBe source and borated scintillator detectors.
+Comprehensive analysis repository for neutron detection studies using various detector technologies and analysis approaches.
 
-## Quick Start
+## Repository Structure
 
-1. **Environment setup:**
-   ```bash
-   source ~/Software/neutron-env/bin/activate  # Or your preferred virtual env
-   ```
+```
+neutron-ana/
+├── AmBe/                              # AmBe source coincidence analysis
+│   ├── 01_basic_analysis.ipynb        # TOF, charge, basic characterization
+│   ├── 02_pulse_shape_analysis.ipynb  # PSD feature extraction, ROC analysis
+│   ├── 03_physics_background.ipynb    # Amplitude analysis, pair production
+│   ├── 04_machine_learning.ipynb      # BDT, feature importance, supervised learning
+│   ├── 05_unsupervised_analysis.ipynb # PCA, t-SNE, clustering
+│   └── lib.py                         # Analysis functions library
+├── docs/                              # Documentation and results
+│   ├── Summary.md                     # Comprehensive analysis summary
+│   └── output/                        # Generated plots and results
+├── others/                            # Legacy analyses and utility scripts
+├── requirements.txt                   # Python dependencies
+└── README.md                          # This file
+```
 
-2. **Run analysis notebooks in order:**
-   - `01_basic_analysis.ipynb` - Time-of-flight and charge analysis
-   - `02_pulse_shape_analysis.ipynb` - PSD feature extraction
-   - `03_physics_background.ipynb` - Background investigation
-   - `04_machine_learning.ipynb` - BDT and supervised learning
-   - `05_unsupervised_analysis.ipynb` - Clustering and dimensionality reduction
+## Setup Instructions
 
-## Analysis Overview
+### 1. Clone Repository
+```bash
+git clone <repository-url>
+cd neutron-ana
+```
+
+### 2. Create Virtual Environment (Automatic)
+```bash
+# Create virtual environment
+python -m venv neutron-env
+
+# Activate environment (Linux/Mac)
+source neutron-env/bin/activate
+
+# Activate environment (Windows)
+neutron-env\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+```
+
+### 3. Run Analysis
+
+Navigate to the AmBe analysis directory and run notebooks in order:
+```bash
+cd AmBe/
+jupyter notebook  # or jupyter lab
+```
+
+**Execution order:**
+1. `01_basic_analysis.ipynb` - Time-of-flight and charge analysis
+2. `02_pulse_shape_analysis.ipynb` - PSD feature extraction
+3. `03_physics_background.ipynb` - Background investigation
+4. `04_machine_learning.ipynb` - BDT and supervised learning
+5. `05_unsupervised_analysis.ipynb` - Clustering and dimensionality reduction
+
+## AmBe Analysis Overview
 
 ### Key Results
 - **Primary discriminator:** Time-of-flight (Δt > 20 ns) → 21.1% neutron capture efficiency
@@ -30,23 +73,28 @@ Two-channel neutron-gamma coincidence analysis using AmBe source and borated sci
 - **Background:** 511 keV γ from e⁺ annihilation (4.4 MeV γ → pair production)
 - **Challenge:** Similar energies (478 vs 511 keV) make discrimination difficult
 
-## File Structure
+### Data
+- **Source:** AmBe neutron source (4.4 MeV γ + neutrons)
+- **Detectors:** CH1 (standard scintillator), CH2 (borated scintillator)
+- **Format:** LeCroy .trc oscilloscope files
+- **Dataset:** 2000 waveform pairs, 1655 after saturation filtering
 
-```
-neutron-ana/
-├── 01_basic_analysis.ipynb           # TOF, charge, basic characterization
-├── 02_pulse_shape_analysis.ipynb     # PSD feature extraction, ROC analysis
-├── 03_physics_background.ipynb       # Amplitude analysis, pair production
-├── 04_machine_learning.ipynb         # BDT, feature importance, supervised learning
-├── 05_unsupervised_analysis.ipynb    # PCA, t-SNE, clustering
-├── lib.py                            # Analysis functions library
-├── output/                           # Generated plots and results
-├── Summary.md                        # Comprehensive analysis summary
-└── README.md                         # This file
-```
+### Analysis Methods
+1. **Time-of-Flight:** Δt = T₀_CH2 - T₀_CH1 (primary neutron ID)
+2. **Pulse Shape Discrimination:** 6 shape parameters extracted per waveform
+3. **Machine Learning:** Gradient boosting with 8 features
+4. **Physics Analysis:** Energy spectrum analysis for background identification
+5. **Unsupervised Learning:** PCA, t-SNE, clustering for natural separation
+
+### Key Findings
+- **TOF cut (Δt > 20 ns) is essential and sufficient** for neutron identification
+- **Pair production background** explains why PSD discrimination is weak
+- **Machine learning confirms** rather than improves upon traditional methods
+- **Physics understanding** more valuable than complex algorithms
 
 ## Dependencies
 
+Core packages (automatically installed with setup above):
 ```
 numpy>=1.21.0
 pandas>=1.3.0
@@ -56,35 +104,23 @@ scipy>=1.7.0
 lecroyparser
 ```
 
-Install with: `pip install -r requirements.txt`
+## Documentation
 
-## Data
+- **Complete analysis details:** `docs/Summary.md`
+- **Generated plots and results:** `docs/output/`
+- **Legacy notebooks:** `others/` directory
 
-- **Source:** AmBe neutron source (4.4 MeV γ + neutrons)
-- **Detectors:** CH1 (standard scintillator), CH2 (borated scintillator)
-- **Format:** LeCroy .trc oscilloscope files
-- **Dataset:** 2000 waveform pairs, 1655 after saturation filtering
+## Contributing
 
-## Analysis Methods
-
-1. **Time-of-Flight:** Δt = T₀_CH2 - T₀_CH1 (primary neutron ID)
-2. **Pulse Shape Discrimination:** 6 shape parameters extracted per waveform
-3. **Machine Learning:** Gradient boosting with 8 features
-4. **Physics Analysis:** Energy spectrum analysis for background identification
-5. **Unsupervised Learning:** PCA, t-SNE, clustering for natural separation
-
-## Key Findings
-
-- **TOF cut (Δt > 20 ns) is essential and sufficient** for neutron identification
-- **Pair production background** explains why PSD discrimination is weak
-- **Machine learning confirms** rather than improves upon traditional methods
-- **Physics understanding** more valuable than complex algorithms
-
-See `Summary.md` for complete analysis details and interpretation.
+To add new analyses:
+1. Create appropriate directory structure (e.g., `NewAnalysis/`)
+2. Include analysis notebooks and supporting code
+3. Update this README with overview
+4. Add documentation to `docs/`
 
 ---
 
 ## Legacy Information
 
 Original 3DET project data is in `/eos/user/e/evilla/3det/` (contact `emanuele.villa@cern.ch` for access).
-Current analysis focuses on AmBe coincidence measurements with borated scintillator detectors.
+Current repository focuses on neutron detection studies with various source and detector combinations.
