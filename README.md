@@ -29,7 +29,7 @@ git clone <repository-url>
 cd neutron-ana
 ```
 
-### 2. Create Virtual Environment (Automatic)
+### 2. Create Virtual Environment & Install Dependencies
 ```bash
 # Create virtual environment
 python -m venv neutron-env
@@ -42,6 +42,10 @@ neutron-env\Scripts\activate
 
 # Install dependencies
 pip install -r requirements.txt
+
+# Register kernel for Jupyter (so notebooks use this kernel automatically)
+pip install ipykernel
+python -m ipykernel install --user --name neutron-env --display-name "Neutron Analysis"
 ```
 
 ### 3. Run Analysis
@@ -51,6 +55,10 @@ Navigate to the AmBe analysis directory and run notebooks in order:
 cd AmBe/
 jupyter notebook  # or jupyter lab
 ```
+
+The notebooks are **automatically configured to use the `neutron-env` kernel**. When you open a notebook, it should prompt you to use the correct kernel. If not:
+- Go to `Kernel` > `Change kernel` > Select `Neutron Analysis`
+- Or ensure you created the kernel with: `python -m ipykernel install --user --name neutron-env --display-name "Neutron Analysis"`
 
 **Execution order:**
 1. `01_basic_analysis.ipynb` - Time-of-flight and charge analysis
