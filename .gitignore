@@ -9,3 +9,6 @@ env/
 neutron-env/
 */venv/
 */env/
+
+# IDE settings
+.vscode/

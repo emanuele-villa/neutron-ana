@@ -206,13 +206,14 @@ def load_waveform(path: Path, channel_index: Optional[int] = None) -> Optional[W
 
 
 def compute_baseline(time_ns: np.ndarray, voltage_v: np.ndarray, config: TwoChannelConfig) -> Tuple[float, float]:
-    """Compute baseline mean and std from first 100ns of waveform."""
-    # Find samples within first 100ns
-    mask = time_ns <= (time_ns[0] + config.baseline_window_ns)
-    segment = voltage_v[mask]
+    """Compute baseline mean and std from first 10 samples of waveform."""
+    # Use first 10 samples (much simpler and more stable)
+    n_baseline_samples = 10
 
-    if segment.size < 3:
-        raise ValueError("Baseline window contains < 3 samples")
+    if voltage_v.size < n_baseline_samples:
+        raise ValueError(f"Waveform has only {voltage_v.size} samples, need at least {n_baseline_samples}")
+
+    segment = voltage_v[:n_baseline_samples]
 
     baseline = float(np.mean(segment))
     baseline_std = float(np.std(segment, ddof=0))
@@ -298,6 +299,66 @@ def integrate_charge(time_ns: np.ndarray, aligned_signal_v: np.ndarray,
 
     # trapezoid returns V*ns, convert to V*s
     return float(np.trapezoid(aligned_signal_v[mask], time_ns[mask]) * 1e-9)
+
+
+def charge_to_energy_keV(charge_vs: float, calibration_keV_per_vs: float,
+                        input_impedance_ohm: float = 50.0) -> float:
+    """Convert charge (V⋅s) to energy (keV).
+
+    Args:
+        charge_vs: Integrated charge in volt-seconds
+        calibration_keV_per_vs: Calibration factor (keV per V⋅s)
+        input_impedance_ohm: Oscilloscope input impedance (default 50Ω)
+
+    Returns:
+        Energy in keV
+    """
+    return charge_vs * calibration_keV_per_vs
+
+
+def calibrate_energy_from_compton_edge(neutron_charges_vs: np.ndarray,
+                                     gamma_energy_keV: float = 478.0,
+                                     percentile: float = 99.0) -> float:
+    """Calculate calibration factor using Compton edge method (CORRECT physics).
+
+    For gamma rays in scintillators, Compton scattering dominates. The maximum
+    energy deposition is the Compton edge, not the full gamma energy.
+
+    Args:
+        neutron_charges_vs: Array of charge measurements for neutron events (V⋅s)
+        gamma_energy_keV: Incident gamma energy (default 478 keV)
+        percentile: Percentile to use for Compton edge (default 99th percentile)
+
+    Returns:
+        Calibration factor in keV per V⋅s
+    """
+    # Calculate Compton edge energy
+    m_e_c2 = 511.0  # keV, electron rest mass energy
+    compton_edge_keV = (gamma_energy_keV * (2 * gamma_energy_keV / m_e_c2) /
+                        (1 + 2 * gamma_energy_keV / m_e_c2))
+
+    # Use high percentile of charge distribution as Compton edge
+    max_charge = np.percentile(neutron_charges_vs, percentile)
+
+    return compton_edge_keV / max_charge
+
+
+def calibrate_energy_from_neutron_peak(neutron_charges_vs: np.ndarray,
+                                     neutron_peak_energy_keV: float = 478.0) -> float:
+    """DEPRECATED: Incorrect method - use calibrate_energy_from_compton_edge instead.
+
+    This function incorrectly assumes mean/median charge corresponds to full gamma energy.
+    In reality, Compton scattering creates a continuum with Compton edge as maximum.
+    """
+    import warnings
+    warnings.warn(
+        "This calibration method is physically incorrect for Compton scattering. "
+        "Use calibrate_energy_from_compton_edge() instead.",
+        DeprecationWarning,
+        stacklevel=2
+    )
+    mean_charge = np.mean(neutron_charges_vs)
+    return neutron_peak_energy_keV / mean_charge
 
 
 def _max_consecutive_true(values: np.ndarray) -> int:
