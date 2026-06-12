@@ -1,14 +1,29 @@
-*dat
-**/__pycache__/
-.DS_Store
-*.tmp
-
-# Python virtual environments
+# Virtual environment
+neutron-env/
 venv/
 env/
-neutron-env/
-*/venv/
-*/env/
+.venv/
 
-# IDE settings
-.vscode/
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+*.tmp
+*.bak
+
+# Raw oscilloscope data (large, stored outside repo)
+*.trc
+*.Spe
+
+# Generated output (figures regenerated from notebooks)
+projects/*/output/

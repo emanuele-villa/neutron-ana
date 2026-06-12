@@ -1,0 +1,5 @@
+{
+    "jupyter.defaultKernel": "neutron-env",
+    "jupyter.kernels.filter": [],
+    "python.defaultInterpreterPath": "./neutron-env/bin/python"
+}
